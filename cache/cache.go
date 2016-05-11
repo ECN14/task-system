@@ -9,7 +9,7 @@ var ErrTimeOut = errors.New("-101 time out")
 // ErrKeyNotExist Key不存在
 var ErrKeyNotExist = errors.New("-203 key not exist")
 // ErrMaxMemoryError 内存不够
-var ErrMaxMemoryError = errors.New("-103 beyond memory") 
+var ErrMaxMemoryError = errors.New("-103 beyond memory")
 // Cache 缓存接口
 type Cache interface {
 	Set(key string, val []byte) error

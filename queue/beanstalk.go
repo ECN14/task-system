@@ -162,7 +162,12 @@ func (q *beanstalk) handleFunc(channel string) chan bool {
 
 	ch := make(chan bool, 1)
 	f := func() {
-		ch <- true
+		select {
+		case <-time.After(1 * time.Minute):
+			return 
+		case ch <- true:
+			return
+		}
 	}
 	g, ok := q.tube[channel]
 	if !ok {
@@ -249,6 +254,7 @@ func (q *beanstalk) itemExpiredTube(channel string) bool {
 	}
 
 	if g.isExpire(channel) {
+		g.handlerTable.CallBack()
 		delete(q.tube, channel)
 	}
 

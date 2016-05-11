@@ -142,7 +142,7 @@ func (bc *Bucket) IsExist(key string) bool {
 	if v, ok := bc.items[key]; ok {
 		return !v.isExpire()
 	}
- 
+
 	return false
 }
 
@@ -219,18 +219,17 @@ func (bc *Bucket) GetAndTimeOut(key string, timeout time.Duration) ([]byte, erro
 	if ch == nil {
 		return nil, ErrKeyNotExist
 	}
-	for {
-		select {
-		case <-time.After(timeout):
-			return nil, ErrTimeOut
-		case <-ch:
-			b, ok := bc.Get(key)
-			if ok {
-				return b, nil
-			}
-			return nil, ErrKeyNotExist
+	select {
+	case <-time.After(timeout):
+		return nil, ErrTimeOut
+	case <-ch:
+		b, ok := bc.Get(key)
+		if ok {
+			return b, nil
 		}
+		return nil, ErrKeyNotExist
 	}
+
 }
 
 // handleFunc 注册func
@@ -242,7 +241,12 @@ func (bc *Bucket) handleFunc(key string) chan bool {
 	if v, ok := bc.items[key]; ok {
 		ch = make(chan bool, 1)
 		f := func() {
-			ch <- true
+			select {
+			case <-time.After(1 * time.Minute):
+				return
+			case ch <- true:
+				return
+			}
 		}
 		if v.val == nil {
 			v.handlerTable.HandlerFunc(f)

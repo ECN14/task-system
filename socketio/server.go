@@ -18,7 +18,7 @@ import (
 // Handler 是业务动作接口
 type Handler interface {
 	ServeTCP(ResponseWriter, *Request)
-} 
+}
 
 const (
 	startHead byte = '/'
@@ -113,7 +113,6 @@ func (mux *ServeMux) Handle(name string, handler Handler) {
 func (mux *ServeMux) Handler(name string) (Handler, string) {
 	mux.RLock()
 	defer mux.RUnlock()
-
 
 	entry, ok := mux.m[fmt.Sprintf("_%s", name)]
 	if ok {
